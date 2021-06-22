@@ -84,3 +84,7 @@ struct ContentView: View {
     }
 }
 ```
+
+Graphics Powered by [PixelKit](https://github.com/heestand-xyz/PixelKit)
+
+Original Noise by [Eliot Eshelman](https://github.com/eshelman)
