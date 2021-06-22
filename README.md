@@ -17,6 +17,8 @@ import SwiftUI
 import Noise
 ```
 
+<img src="https://github.com/heestand-xyz/Noise/blob/main/Assets/noise.png?raw=true" width="256"/>
+
 ```swift
 struct ContentView: View {
     var body: some View {
@@ -24,6 +26,8 @@ struct ContentView: View {
     }
 }
 ```
+
+<img src="https://github.com/heestand-xyz/Noise/blob/main/Assets/noise-smooth.png?raw=true" width="256"/>
 
 ```swift
 struct ContentView: View {
@@ -33,6 +37,8 @@ struct ContentView: View {
 }
 ```
 
+<img src="https://github.com/heestand-xyz/Noise/blob/main/Assets/noise-random.png?raw=true" width="256"/>
+
 ```swift
 struct ContentView: View {
     var body: some View {
@@ -41,21 +47,7 @@ struct ContentView: View {
 }
 ```
 
-```swift
-struct ContentView: View {
-    var body: some View {
-        Noise(smoothness: 1.0, speed: 1.0)
-    }
-}
-```
-
-```swift
-struct ContentView: View {
-    var body: some View {
-        Noise(smoothness: nil, speed: 1.0)
-    }
-}
-```
+<img src="https://github.com/heestand-xyz/Noise/blob/main/Assets/noise-colors.png?raw=true" width="256"/>
 
 ```swift
 struct ContentView: View {
@@ -66,17 +58,7 @@ struct ContentView: View {
 }
 ```
 
-```swift
-```
-
-```swift
-```
-
-```swift
-```
-
-```swift
-```
+<img src="https://github.com/heestand-xyz/Noise/blob/main/Assets/noise-color-layers.png?raw=true" width="256"/>
 
 ```swift
 struct ContentView: View {
@@ -89,6 +71,16 @@ struct ContentView: View {
                 .foregroundColor(.yellow)
                 .seed(2)
         }
+    }
+}
+```
+
+<img src="https://github.com/heestand-xyz/Noise/blob/main/Assets/noise-smooth.gif?raw=true" width="256"/>
+
+```swift
+struct ContentView: View {
+    var body: some View {
+        Noise(smoothness: 1.0, speed: 1.0)
     }
 }
 ```
