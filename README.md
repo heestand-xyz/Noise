@@ -2,15 +2,13 @@
 
 Generate random smooth cloudy noise.
 
-## Install
-
-### Swift Package
+## Swift Package
 
 ```swift
-.package(url: "https://github.com/heestand-xyz/Noise", from: "1.0.0")
+.package(url: "https://github.com/heestand-xyz/Noise", from: "2.0.0")
 ```
 
-### Import Package
+## Examples
 
 ```swift
 import SwiftUI
@@ -22,7 +20,8 @@ import Noise
 ```swift
 struct ContentView: View {
     var body: some View {
-        Noise()
+        Noise(style: .noisy)
+            .monochrome()
     }
 }
 ```
@@ -32,7 +31,9 @@ struct ContentView: View {
 ```swift
 struct ContentView: View {
     var body: some View {
-        Noise(smoothness: 1.0)
+        Noise(style: .smooth)
+            .monochrome()
+            .brightness(1.5)
     }
 }
 ```
@@ -42,7 +43,8 @@ struct ContentView: View {
 ```swift
 struct ContentView: View {
     var body: some View {
-        Noise(smoothness: nil)
+        Noise(style: .random)
+            .monochrome()
     }
 }
 ```
@@ -52,8 +54,8 @@ struct ContentView: View {
 ```swift
 struct ContentView: View {
     var body: some View {
-        Noise(smoothness: 0.75)
-            .foregroundColors()
+        Noise(style: .custom(octaves: 4))
+            .brightness(1.5)
     }
 }
 ```
@@ -65,11 +67,14 @@ struct ContentView: View {
     var body: some View {
         ZStack {
             Color.black
-            Noise(smoothness: 0.5)
-                .foregroundColor(.red)
-            Noise(smoothness: 1.0)
-                .foregroundColor(.yellow)
+            Noise(style: .custom(octaves: 5))
+                .monochrome()
+                .tint(.red)
+            Noise(style: .smooth)
+                .monochrome()
+                .tint(.yellow)
                 .seed(2)
+                .blendMode(.screen)
         }
     }
 }
@@ -80,11 +85,12 @@ struct ContentView: View {
 ```swift
 struct ContentView: View {
     var body: some View {
-        Noise(smoothness: 1.0, speed: 1.0)
+        Noise(style: .smooth, speed: 1.0)
+            .monochrome()
     }
 }
 ```
 
-Graphics Powered by [PixelKit](https://github.com/heestand-xyz/PixelKit)
+Graphics Powered by SwiftUI Metal Shaders
 
 Original Noise by [Eliot Eshelman](https://github.com/eshelman)

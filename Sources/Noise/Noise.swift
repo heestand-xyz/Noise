@@ -1,118 +1,111 @@
 import SwiftUI
-import PixelKit
-import Resolution
-import PixelColor
 import Combine
 
-/// Noise
-///
-/// - Parameters:
-///     - smoothness: A low value is a more random noise, a high value is smooth and a nil value is random.
-///     - speed: Animation of the noise, a value of 1.0 is a good speed.
 public struct Noise: View {
     
     @State private var id: UUID = UUID()
     
     @Environment(\.colorScheme) var colorScheme
     
-    private let color: PixelColor?
+    private let color: Color?
     private let brightness: Double?
-    private let allColors: Bool
+    private let colored: Bool
     private let seed: Int
-
-    private let smoothness: Double?
     private let speed: Double
+    
+    public enum Style: Equatable {
+        case noisy
+        case smooth
+        case random
+        /// Octaves between 1 and 10. The higher number the more noise.
+        case custom(octaves: Int)
+        var octaves: Int {
+            switch self {
+            case .noisy:
+                10
+            case .smooth:
+                1
+            case .random:
+                1
+            case .custom(let octaves):
+                min(10, max(1, octaves))
+            }
+        }
+    }
+    let style: Style
 
-    @StateObject private var colorPix = ColorPIX()
-    @StateObject private var noisePix = NoisePIX()
-    @StateObject private var levelsPix = LevelsPIX()
-    @StateObject private var reorderPix = ReorderPIX()
-
+    @available(*, deprecated, renamed: "init(style:speed:)")
     public init(smoothness: Double? = 0.0,
                 speed: Double = 0.0) {
         color = nil
         brightness = nil
-        allColors = false
-        seed = 1
-        self.smoothness = smoothness
+        colored = false
+        seed = 0
+        style = if let smoothness {
+            .custom(octaves: 1 + Int((1.0 - min(1.0, max(0.0, smoothness))) * 9))
+        } else {
+            .random
+        }
         self.speed = speed
     }
     
-    private init(color: PixelColor?,
+    public init(style: Style,
+                speed: Double = 0.0) {
+        color = nil
+        brightness = nil
+        colored = true
+        seed = 0
+        self.style = style
+        self.speed = speed
+    }
+    
+    private init(color: Color?,
                  brightness: Double?,
-                 allColors: Bool,
+                 colored: Bool,
                  seed: Int,
-                 smoothness: Double?,
+                 style: Style,
                  speed: Double) {
         self.color = color
         self.brightness = brightness
-        self.allColors = allColors
+        self.colored = colored
         self.seed = seed
-        self.smoothness = smoothness
+        self.style = style
         self.speed = speed
     }
     
+    @State private var startTime: Date = .now
+    
     public var body: some View {
-        GeometryReader { geometry in
-            PixelView(pix: reorderPix)
-                .onAppear {
-                    
-                    updateResolution(size: geometry.size)
-                    
-                    updateColor(colorScheme)
-                    
-                    if let smoothness = smoothness {
-                        noisePix.octaves = 1 + Int((1.0 - smoothness) * 9)
-                    } else {
-                        noisePix.random = true
-                    }
-                    noisePix.seed = seed
-                    noisePix.colored = allColors
-                    
-                    levelsPix.input = noisePix
-                    levelsPix.brightness = 1.0 + (brightness ?? 0.0)
-                    
-                    reorderPix.inputA = levelsPix
-                    reorderPix.inputB = colorPix
-                    reorderPix.redInput = allColors ? .first : .second
-                    reorderPix.greenInput = allColors ? .first : .second
-                    reorderPix.blueInput = allColors ? .first : .second
-                    reorderPix.alphaChannel = allColors ? .alpha : .red
-
-                    reorderPix.view.checker = false
-                    
-                    PixelKit.main.render.listenToFrames(id: id) {
-                        guard speed != 0.0 else { return }
-                        if smoothness != nil {
-                            noisePix.zPosition += speed * 0.01
-                        } else {
-                            noisePix.seed += 1
-                        }
-                    }
+        if speed > 0.0 {
+            SizeReader { size in
+                TimelineView(.animation) { context in
+                    let time: TimeInterval = startTime.distance(to: context.date)
+                    let zOffset: CGFloat = time * speed * size.height
+                    NoiseShader(
+                        octaves: style.octaves,
+                        offset: .zero,
+                        zOffset: zOffset,
+                        scale: 1.0,
+                        isColored: colored,
+                        isRandom: style == .random,
+                        tint: color ?? .white,
+                        brightness: brightness ?? 1.0,
+                        seed: seed
+                    )
                 }
-                .onDisappear {
-                    PixelKit.main.render.unlistenToFrames(for: id)
-                }
-                .onChange(of: colorScheme, perform: { colorScheme in
-                    updateColor(colorScheme)
-                })
-                .onChange(of: geometry.size) { size in
-                    updateResolution(size: size)
-                }
-        }
-    }
-    
-    func updateResolution(size: CGSize) {
-        let resolution: Resolution = .size(size) * Resolution.scale
-        noisePix.resolution = resolution
-        colorPix.resolution = resolution
-    }
-    
-    func updateColor(_ colorScheme: ColorScheme) {
-        if let color = color {
-            colorPix.color = color
+            }
         } else {
-            colorPix.color = colorScheme == .dark ? .white : .black
+            NoiseShader(
+                octaves: style.octaves,
+                offset: .zero,
+                zOffset: 0.0,
+                scale: 1.0,
+                isColored: colored,
+                isRandom: style == .random,
+                tint: color ?? .white,
+                brightness: brightness ?? 1.0,
+                seed: seed
+            )
         }
     }
 }
@@ -120,24 +113,32 @@ public struct Noise: View {
 extension Noise {
     
     public func seed(_ seed: Int) -> Noise {
-        Noise(color: color, brightness: brightness, allColors: allColors, seed: seed, smoothness: smoothness, speed: speed)
+        Noise(color: color, brightness: brightness, colored: colored, seed: seed, style: style, speed: speed)
     }
 
+    @available(*, deprecated, message: "The noise is now colored by default.")
     public func foregroundColors() -> Noise {
-        Noise(color: color, brightness: brightness, allColors: true, seed: seed, smoothness: smoothness, speed: speed)
+        self
     }
     
-    public func foregroundColor(_ color: PixelColor) -> Noise {
-        Noise(color: color, brightness: brightness, allColors: allColors, seed: seed, smoothness: smoothness, speed: speed)
+    @available(*, deprecated, renamed: "tint(_:)")
+    public func foregroundColor(_ color: Color) -> Noise {
+        tint(color)
+    }
+    
+    public func monochrome() -> Noise {
+        Noise(color: color, brightness: brightness, colored: false, seed: seed, style: style, speed: speed)
+    }
+    
+    public func tint(_ color: Color) -> Noise {
+        Noise(color: color, brightness: brightness, colored: colored, seed: seed, style: style, speed: speed)
     }
     
     public func brightness(_ amount: Double) -> Noise {
-        Noise(color: color, brightness: amount, allColors: allColors, seed: seed, smoothness: smoothness, speed: speed)
+        Noise(color: color, brightness: amount, colored: colored, seed: seed, style: style, speed: speed)
     }
 }
 
-struct Noise_Previews: PreviewProvider {
-    static var previews: some View {
-        Noise()
-    }
+#Preview {
+    Noise(style: .smooth)
 }
