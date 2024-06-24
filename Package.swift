@@ -18,6 +18,11 @@ let package = Package(
     targets: [
         .target(
             name: "Noise",
-            dependencies: []),
+            dependencies: [],
+            resources: [
+                .process("Shaders/Shared"),
+                .process("Shaders/NoiseShader.metal")
+            ]
+        ),
     ]
 )
