@@ -79,8 +79,9 @@ public struct Noise: View {
         if speed > 0.0 {
             SizeReader { size in
                 TimelineView(.animation) { context in
-                    let time: TimeInterval = startTime.distance(to: context.date)
-                    let zOffset: CGFloat = time * speed * size.height
+                    let seconds: TimeInterval = startTime.distance(to: context.date)
+                    let zOffset: CGFloat = seconds * speed * size.height
+                    let randomSeed = Int(seconds * speed)
                     NoiseShader(
                         octaves: style.octaves,
                         offset: .zero,
@@ -90,7 +91,7 @@ public struct Noise: View {
                         isRandom: style == .random,
                         tint: color ?? .white,
                         brightness: brightness ?? 1.0,
-                        seed: seed
+                        seed: style == .random ? randomSeed : seed
                     )
                 }
             }
