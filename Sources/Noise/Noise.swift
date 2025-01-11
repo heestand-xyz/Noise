@@ -78,40 +78,30 @@ public struct Noise: View {
         self.speed = speed
     }
     
-    @State private var startTime: Date = .now
+    @State private var time: TimeInterval = 0.0
+    @State private var lastDate: Date = .now
     
     public var body: some View {
-        if speed > 0.0 {
-            SizeReader { size in
-                TimelineView(.animation) { context in
-                    let seconds: TimeInterval = startTime.distance(to: context.date)
-                    let zOffset: CGFloat = seconds * speed * size.height
-                    let randomSeed = Int(seconds * speed)
-                    NoiseShader(
-                        octaves: style.octaves,
-                        offset: .zero,
-                        zOffset: zOffset,
-                        scale: scale,
-                        isColored: colored,
-                        isRandom: style == .random,
-                        tint: color ?? .white,
-                        brightness: brightness ?? 1.0,
-                        seed: style == .random ? randomSeed : seed
-                    )
+        SizeReader { size in
+            TimelineView(.animation) { context in
+                let zOffset: CGFloat = time * size.height
+                let randomSeed = Int(time)
+                NoiseShader(
+                    octaves: style.octaves,
+                    offset: .zero,
+                    zOffset: zOffset,
+                    scale: scale,
+                    isColored: colored,
+                    isRandom: style == .random,
+                    tint: color ?? .white,
+                    brightness: brightness ?? 1.0,
+                    seed: style == .random ? randomSeed : seed
+                )
+                .onChange(of: context.date) { _, newDate in
+                    time += lastDate.distance(to: newDate) * speed
+                    lastDate = newDate
                 }
             }
-        } else {
-            NoiseShader(
-                octaves: style.octaves,
-                offset: .zero,
-                zOffset: 0.0,
-                scale: scale,
-                isColored: colored,
-                isRandom: style == .random,
-                tint: color ?? .white,
-                brightness: brightness ?? 1.0,
-                seed: seed
-            )
         }
     }
 }
