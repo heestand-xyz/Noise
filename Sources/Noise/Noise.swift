@@ -82,24 +82,38 @@ public struct Noise: View {
     @State private var lastDate: Date = .now
     
     public var body: some View {
-        SizeReader { size in
-            TimelineView(.animation) { context in
-                let zOffset: CGFloat = time * size.height
-                let randomSeed = Int(time)
-                NoiseShader(
-                    octaves: style.octaves,
-                    offset: .zero,
-                    zOffset: zOffset,
-                    scale: scale,
-                    isColored: colored,
-                    isRandom: style == .random,
-                    tint: color ?? .white,
-                    brightness: brightness ?? 1.0,
-                    seed: style == .random ? randomSeed : seed
-                )
-                .onChange(of: context.date) { _, newDate in
-                    time += lastDate.distance(to: newDate) * speed
-                    lastDate = newDate
+        if speed == 0.0, time == 0.0 {
+            NoiseShader(
+                octaves: style.octaves,
+                offset: .zero,
+                zOffset: 0.0,
+                scale: scale,
+                isColored: colored,
+                isRandom: style == .random,
+                tint: color ?? .white,
+                brightness: brightness ?? 1.0,
+                seed: seed
+            )
+        } else {
+            SizeReader { size in
+                TimelineView(.animation) { context in
+                    let zOffset: CGFloat = time * size.height
+                    let randomSeed = Int(time)
+                    NoiseShader(
+                        octaves: style.octaves,
+                        offset: .zero,
+                        zOffset: zOffset,
+                        scale: scale,
+                        isColored: colored,
+                        isRandom: style == .random,
+                        tint: color ?? .white,
+                        brightness: brightness ?? 1.0,
+                        seed: style == .random ? randomSeed : seed
+                    )
+                    .onChange(of: context.date) { _, newDate in
+                        time += lastDate.distance(to: newDate) * speed
+                        lastDate = newDate
+                    }
                 }
             }
         }
