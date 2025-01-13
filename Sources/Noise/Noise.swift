@@ -167,6 +167,10 @@ extension Noise {
             speed: speed
         )
     }
+
+    public func monochrome(on colored: Bool) -> Noise {
+        Noise(color: color, brightness: brightness, colored: colored, seed: seed, style: style, speed: speed)
+    }
     
     public func tint(_ color: Color) -> Noise {
         Noise(
