@@ -10,6 +10,7 @@ struct NoiseShader: View {
     let isRandom: Bool
     let tint: Color
     let brightness: CGFloat
+    let gamma: CGFloat
     let seed: Int
     
     private var shaderFunction: ShaderFunction {
@@ -28,6 +29,7 @@ struct NoiseShader: View {
             .float(isRandom ? 1.0 : 0.0),
             .color(tint),
             .float(brightness),
+            .float(gamma),
             .float(CGFloat(seed)),
         ])
     }

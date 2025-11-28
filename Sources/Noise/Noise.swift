@@ -9,6 +9,7 @@ public struct Noise: View {
     
     private let color: Color?
     private let brightness: Double?
+    private let gamma: Double?
     private let colored: Bool
     private let scale: CGFloat
     private let seed: Int
@@ -40,6 +41,7 @@ public struct Noise: View {
                 speed: Double = 0.0) {
         color = nil
         brightness = nil
+        gamma = nil
         colored = false
         seed = 0
         scale = 1.0
@@ -55,6 +57,7 @@ public struct Noise: View {
                 speed: Double = 0.0) {
         color = nil
         brightness = nil
+        gamma = nil
         colored = true
         seed = 0
         scale = 1.0
@@ -64,6 +67,7 @@ public struct Noise: View {
     
     private init(color: Color?,
                  brightness: Double?,
+                 gamma: Double?,
                  colored: Bool,
                  scale: CGFloat,
                  seed: Int,
@@ -71,6 +75,7 @@ public struct Noise: View {
                  speed: Double) {
         self.color = color
         self.brightness = brightness
+        self.gamma = gamma
         self.colored = colored
         self.scale = scale
         self.seed = seed
@@ -92,6 +97,7 @@ public struct Noise: View {
                 isRandom: style == .random,
                 tint: color ?? .white,
                 brightness: brightness ?? 1.0,
+                gamma: gamma ?? 1.0,
                 seed: seed
             )
         } else {
@@ -108,6 +114,7 @@ public struct Noise: View {
                         isRandom: style == .random,
                         tint: color ?? .white,
                         brightness: brightness ?? 1.0,
+                        gamma: gamma ?? 1.0,
                         seed: style == .random ? randomSeed : seed
                     )
                     .onChange(of: context.date) { _, newDate in
@@ -126,6 +133,7 @@ extension Noise {
         Noise(
             color: color,
             brightness: brightness,
+            gamma: gamma,
             colored: colored,
             scale: scale,
             seed: seed,
@@ -138,6 +146,7 @@ extension Noise {
         Noise(
             color: color,
             brightness: brightness,
+            gamma: gamma,
             colored: colored,
             scale: scale,
             seed: seed,
@@ -160,6 +169,7 @@ extension Noise {
         Noise(
             color: color,
             brightness: brightness,
+            gamma: gamma,
             colored: false,
             scale: scale,
             seed: seed,
@@ -172,6 +182,7 @@ extension Noise {
         Noise(
             color: color,
             brightness: brightness,
+            gamma: gamma,
             colored: colored,
             scale: scale,
             seed: seed,
@@ -184,6 +195,20 @@ extension Noise {
         Noise(
             color: color,
             brightness: amount,
+            gamma: gamma,
+            colored: colored,
+            scale: scale,
+            seed: seed,
+            style: style,
+            speed: speed
+        )
+    }
+    
+    public func gamma(_ amount: Double) -> Noise {
+        Noise(
+            color: color,
+            brightness: brightness,
+            gamma: amount,
             colored: colored,
             scale: scale,
             seed: seed,

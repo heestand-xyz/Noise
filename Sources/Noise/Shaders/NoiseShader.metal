@@ -20,6 +20,7 @@ using namespace metal;
                              float isRandom,
                              half4 tint,
                              float brightness,
+                             float gamma,
                              float seed) {
     
     int max_res = 16384 - 1;
@@ -63,6 +64,9 @@ using namespace metal;
     float red = noise;
     float green = isColored ? noiseGreen : noise;
     float blue = isColored ? noiseBlue : noise;
+    red = pow(red, 1.0 / gamma);
+    green = pow(green, 1.0 / gamma);
+    blue = pow(blue, 1.0 / gamma);
     float4 noiseColor = float4(red * tint.r * brightness,
                                green * tint.g * brightness,
                                blue * tint.b * brightness,
